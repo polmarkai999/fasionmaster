@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Key, Settings2, X, Zap, LayoutGrid, Shield, Gem, ArrowRight } from "lucide-react";
+import { X, Zap, Settings } from "lucide-react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ImageUploader } from "./components/ImageUploader";
 import { ViewModeNav } from "./components/ViewModeNav";
 import { ViewPage } from "./pages/ViewPage";
 import { ResultGallery } from "./components/ResultGallery";
 import { fal } from "@fal-ai/client";
 import { generateBridalImage, AIModelId, ViewMode } from "./services/falApi";
-import logoUrl from "./logo.jpg";
 
 interface GenerationResult {
   id: string;
@@ -18,35 +16,6 @@ interface GenerationResult {
   seed: number;
   viewMode: string;
 }
-
-const FloatingParticles: React.FC = () => {
-  const particles = Array.from({ length: 20 }, (_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    delay: Math.random() * 15,
-    duration: 10 + Math.random() * 20,
-    size: 1 + Math.random() * 2,
-  }));
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="particle"
-          style={{
-            left: p.left,
-            bottom: '-10px',
-            width: `${p.size}px`,
-            height: `${p.size}px`,
-            animationDelay: `${p.delay}s`,
-            animationDuration: `${p.duration}s`,
-          }}
-        />
-      ))}
-    </div>
-  );
-};
 
 const App: React.FC = () => {
   const [dressUrl, setDressUrl] = useState<string>("");
@@ -79,7 +48,6 @@ const App: React.FC = () => {
     }
   }, [falKey]);
 
-  // Sync shootMode with route
   useEffect(() => {
     if (location.pathname === "/location" || location.pathname === "/location-closeup") {
       setShootMode("location");
@@ -88,7 +56,6 @@ const App: React.FC = () => {
     }
   }, [location.pathname]);
 
-  // Auto-switch to Nano Banana Pro for back/closeup/location views
   useEffect(() => {
     const viewMode = getCurrentViewMode();
     if (viewMode !== "front" && engine !== "fal-ai/nano-banana-pro/edit") {
@@ -98,17 +65,14 @@ const App: React.FC = () => {
 
   const handleGenerate = async () => {
     const viewMode = getCurrentViewMode();
-
     if (!dressUrl || !modelUrl) {
       alert("Lütfen hem tasarım hem de model görselini yükleyin.");
       return;
     }
-
     if ((viewMode === "location" || viewMode === "location-closeup") && !locationUrl) {
       alert("Lütfen mekan fotoğrafını yükleyin.");
       return;
     }
-
     if (!falKey) {
       alert("Lütfen Fal.ai API anahtarınızı girin.");
       setShowSettings(true);
@@ -117,10 +81,8 @@ const App: React.FC = () => {
 
     try {
       setIsLoading(true);
-      setProgressMsg("Editoryal Veriler Senkronize Ediliyor...");
-
+      setProgressMsg("Veriler Senkronize Ediliyor...");
       const currentSeed = seed || Math.floor(Math.random() * 1000000);
-
       const response = await generateBridalImage({
         modelId: engine,
         garmentImageUrl: dressUrl,
@@ -131,7 +93,7 @@ const App: React.FC = () => {
         locationImageUrl: (viewMode === "location" || viewMode === "location-closeup") ? locationUrl : undefined,
       }, (update) => {
         if (update.status === "IN_PROGRESS") {
-          const lastLog = update.logs?.[update.logs.length - 1]?.message || "Sanal Couture İşleniyor...";
+          const lastLog = update.logs?.[update.logs.length - 1]?.message || "İşleniyor...";
           setProgressMsg(lastLog);
         }
       });
@@ -142,13 +104,7 @@ const App: React.FC = () => {
           ? response.data.image.url
           : response.data.images[0].url;
 
-      const viewLabels: Record<string, string> = {
-        front: "Ön",
-        back: "Arka",
-        closeup: "Yakın",
-        location: "Mekan",
-        "location-closeup": "Dış Yakın",
-      };
+      const viewLabels: Record<string, string> = { front: "Ön", back: "Arka", closeup: "Yakın", location: "Mekan", "location-closeup": "Dış Yakın" };
 
       const newResult: GenerationResult = {
         id: Math.random().toString(36).substring(7),
@@ -162,7 +118,7 @@ const App: React.FC = () => {
       setResults([newResult, ...results]);
     } catch (error) {
       console.error("Generation error:", error);
-      alert("İşlem sırasında bir hata oluştu. Lütfen API anahtarınızı kontrol edin.");
+      alert("İşlem sırasında bir hata oluştu.");
     } finally {
       setIsLoading(false);
       setProgressMsg("");
@@ -170,329 +126,201 @@ const App: React.FC = () => {
   };
 
   const isLocationMode = shootMode === "location";
+  const viewMode = getCurrentViewMode();
+  const viewLabels: Record<string, string> = { front: "FRONT", back: "BACK", closeup: "CLOSEUP", location: "LOCATION", "location-closeup": "LOC-CLOSE" };
 
   return (
-    <div className="app-container">
-      <FloatingParticles />
+    <div className="bg-[#121212] text-gray-200 min-h-screen flex flex-col overflow-hidden" style={{ fontFamily: "'Montserrat', sans-serif" }}>
 
-      {/* ─── Sidebar Control Panel ─── */}
-      <aside className="sidebar">
-        <div className="sidebar-header flex flex-col items-center justify-center pt-12 pb-2">
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            style={{ width: '100%', height: '70px', position: 'relative', overflow: 'hidden' }}
-          >
-            <img 
-              src={logoUrl} 
-              alt="FashionMaster" 
-              className="opacity-90 transition-opacity hover:opacity-100"
-              style={{
-                position: 'absolute',
-                top: '55%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '240px',
-                maxWidth: 'none',
-                mixBlendMode: 'screen'
-              }}
-            />
-          </motion.div>
-          <div className="mt-1 text-center">
-            <p className="text-[9px] text-white/30 font-bold uppercase tracking-[0.3em]">Haute Couture Stüdyo</p>
+      {/* ═══ HEADER ═══ */}
+      <header className="h-16 border-b border-white/10 flex items-center justify-between px-6 bg-black/40 backdrop-blur-md z-50 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col">
+            <h1 className="font-serif text-2xl tracking-widest text-[#D4AF37] uppercase leading-none">Fashion Master</h1>
+            <span className="text-[10px] tracking-[0.3em] text-gray-400 font-light mt-1 uppercase">Haute Couture Studio</span>
           </div>
         </div>
-
-        <div className="sidebar-content scroll-area space-y-4">
-          {/* View Mode Navigation */}
-          <section>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-4 h-4 rounded-md bg-[#c5a059]/10 flex items-center justify-center">
-                <ArrowRight size={10} className="text-[#c5a059]" />
-              </div>
-              <h2 className="font-display text-[9px] font-bold text-white/35 uppercase tracking-[0.25em]">Çekim Modu</h2>
+        <div className="flex items-center gap-6 text-sm">
+          <div className="flex items-center gap-2 text-green-500">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-xs font-medium">Sistem Çevrimiçi</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowSettings(true)}
+              className="hover:text-[#D4AF37] transition-colors text-gray-400"
+            >
+              <Settings size={18} />
+            </button>
+            <div className="w-8 h-8 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/40 flex items-center justify-center text-[#D4AF37] text-xs font-bold">
+              JD
             </div>
-            <ViewModeNav shootMode={shootMode} onShootModeChange={setShootMode} />
+          </div>
+        </div>
+      </header>
+
+      {/* ═══ MAIN BODY ═══ */}
+      <main className="flex flex-1 overflow-hidden">
+
+        {/* ─── LEFT SIDEBAR ─── */}
+        <aside className="w-72 border-r border-white/5 overflow-y-auto p-4 flex flex-col gap-6 glass-panel shrink-0">
+
+          {/* Çekim Modu */}
+          <section>
+            <h3 className="text-[10px] uppercase tracking-widest text-[#D4AF37] mb-3 font-semibold">Çekim Modu</h3>
+            <ViewModeNav mode="shoot" shootMode={shootMode} onShootModeChange={setShootMode} />
           </section>
 
-          <div className="section-divider" />
-
-          {/* Creative Assets Section */}
+          {/* Görünüm Seçimi */}
           <section>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-4 h-4 rounded-md bg-[#c5a059]/10 flex items-center justify-center">
-                <LayoutGrid size={10} className="text-[#c5a059]" />
-              </div>
-              <h2 className="font-display text-[9px] font-bold text-white/35 uppercase tracking-[0.25em]">Kaynak Girişi</h2>
-            </div>
-            <div className="space-y-4">
-              <ImageUploader label="Giysi Referansı" onUpload={setDressUrl} isLoading={isLoading} />
-              <ImageUploader label="Model Konsepti" onUpload={setModelUrl} isLoading={isLoading} />
-
-              {/* Location Image Uploader - only in location mode */}
-              <AnimatePresence>
-                {isLocationMode && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
-                  >
-                    <div className="relative">
-                      {/* Accent border */}
-                      <div className="absolute -left-[1px] top-2 bottom-2 w-[2px] rounded-full bg-[#59c5a0]/30" />
-                      <div className="pl-3">
-                        <ImageUploader label="Mekan Fotoğrafı" onUpload={setLocationUrl} isLoading={isLoading} />
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            <h3 className="text-[10px] uppercase tracking-widest text-[#D4AF37] mb-3 font-semibold">Görünüm Seçimi</h3>
+            <ViewModeNav mode="view" shootMode={shootMode} onShootModeChange={setShootMode} />
           </section>
 
-          <div className="section-divider" />
-
-          {/* Parameters Section */}
+          {/* İşlem Düğümü */}
           <section>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-4 h-4 rounded-md bg-[#c5a059]/10 flex items-center justify-center">
-                <Settings2 size={10} className="text-[#c5a059]" />
-              </div>
-              <h2 className="font-display text-[9px] font-bold text-white/35 uppercase tracking-[0.25em]">Parametreler</h2>
-            </div>
-            <div className="space-y-4">
-              {/* Quality Badge */}
-              <div className="space-y-3">
-                <label className="text-[10px] font-bold text-white/25 uppercase tracking-widest pl-1">Çıktı Kalitesi</label>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#c5a059]/[0.04] border border-[#c5a059]/15">
-                  <div className="w-2 h-2 rounded-full bg-[#c5a059]" />
-                  <span className="text-[10px] font-bold text-[#c5a059] uppercase tracking-widest">4K Ultra</span>
-                  <span className="text-[8px] text-white/20 font-medium ml-auto">Sabit</span>
+            <h3 className="text-[10px] uppercase tracking-widest text-[#D4AF37] mb-3 font-semibold">İşlem Düğümü</h3>
+            <select
+              value={engine}
+              onChange={(e) => setEngine(e.target.value as AIModelId)}
+              disabled={isLoading}
+              className="select-field"
+            >
+              <option value="fal-ai/nano-banana-pro/edit">ANA PROTOKOL v.01 (FAL)</option>
+              <option value="fal-ai/fashn/tryon/v1.5" disabled={viewMode !== "front"}>FASHN ÇEKİRDEK 1.5</option>
+              <option value="fal-ai/idm-vton" disabled={viewMode !== "front"}>IDM HİBRİT</option>
+            </select>
+            <p className="text-[9px] text-gray-500 mt-2 italic leading-relaxed">
+              * Görünüm moduna göre otomatik optimize edilir.
+            </p>
+          </section>
+
+          {/* Parametreler */}
+          <section className="flex-1">
+            <h3 className="text-[10px] uppercase tracking-widest text-[#D4AF37] mb-3 font-semibold">Parametreler</h3>
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="text-[10px] text-gray-400 block mb-1">Çıktı Kalitesi</label>
+                <div className="flex items-center justify-between glass-panel p-2 rounded-sm text-[11px]">
+                  <span className="text-[#D4AF37]">✨ 4K Ultra</span>
+                  <span className="text-gray-500">Sabit</span>
                 </div>
               </div>
-
-              {/* Seed Input */}
-              <div className="space-y-3">
-                <label className="text-[10px] font-bold text-white/25 uppercase tracking-widest pl-1">Sabit Tohum (Seed)</label>
-                <div className="relative">
+              <div>
+                <label className="text-[10px] text-gray-400 block mb-1">Sabit Tohum (Seed)</label>
+                <div className="flex gap-2">
                   <input
-                    type="number"
+                    type="text"
                     placeholder="Rastgele Seçim"
                     value={seed || ""}
                     onChange={(e) => setSeed(e.target.value ? parseInt(e.target.value) : undefined)}
-                    className="input-modern pr-10"
+                    className="input-field flex-1"
                   />
-                  <Zap size={13} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/10" />
+                  <button className="glass-panel px-2 rounded-sm text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-colors">
+                    <Zap size={16} />
+                  </button>
                 </div>
               </div>
             </div>
           </section>
-        </div>
 
-        {/* System Access Button */}
-        <div className="p-4 border-t border-white/[0.04]">
-          <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-            onClick={() => setShowSettings(true)}
-            className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] text-[10px] font-bold text-white/25 uppercase tracking-widest hover:bg-white/[0.04] hover:text-[#c5a059] hover:border-[#c5a059]/20 transition-all duration-300"
-          >
-            <Shield size={13} /> Sistem Erişimi
-          </motion.button>
-        </div>
-      </aside>
-
-      {/* ─── Main Production Stage ─── */}
-      <main className="main-stage">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <ViewPage
-                title="Ön Görünüm"
-                subtitle="Editoryal Ön Çekim Modu"
-                accentColor="#c5a059"
-                viewMode="front"
-                engine={engine}
-                onSelectEngine={setEngine}
-                isLoading={isLoading}
-                onGenerate={handleGenerate}
-                canGenerate={!!dressUrl && !!modelUrl}
-                progressMsg={progressMsg}
-              />
-            }
-          />
-          <Route
-            path="/back"
-            element={
-              <ViewPage
-                title="Arka Görünüm"
-                subtitle="Kilitli Arka Çekim Modu"
-                accentColor="#59a0c5"
-                viewMode="back"
-                engine={engine}
-                onSelectEngine={setEngine}
-                isLoading={isLoading}
-                onGenerate={handleGenerate}
-                canGenerate={!!dressUrl && !!modelUrl}
-                progressMsg={progressMsg}
-              />
-            }
-          />
-          <Route
-            path="/closeup"
-            element={
-              <ViewPage
-                title="Yakın Plan"
-                subtitle="Makro Detay Çekim Modu"
-                accentColor="#a059c5"
-                viewMode="closeup"
-                engine={engine}
-                onSelectEngine={setEngine}
-                isLoading={isLoading}
-                onGenerate={handleGenerate}
-                canGenerate={!!dressUrl && !!modelUrl}
-                progressMsg={progressMsg}
-              />
-            }
-          />
-          <Route
-            path="/location"
-            element={
-              <ViewPage
-                title="Mekan Çekimi"
-                subtitle="Dış Mekan Editoryal Modu"
-                accentColor="#59c5a0"
-                viewMode="location"
-                engine={engine}
-                onSelectEngine={setEngine}
-                isLoading={isLoading}
-                onGenerate={handleGenerate}
-                canGenerate={!!dressUrl && !!modelUrl && !!locationUrl}
-                progressMsg={progressMsg}
-              />
-            }
-          />
-          <Route
-            path="/location-closeup"
-            element={
-              <ViewPage
-                title="Dış Mekan Yakın Plan"
-                subtitle="Outdoor Arka Plan Üretici"
-                accentColor="#a0c559"
-                viewMode="location-closeup"
-                engine={engine}
-                onSelectEngine={setEngine}
-                isLoading={isLoading}
-                onGenerate={handleGenerate}
-                canGenerate={!!dressUrl && !!modelUrl && !!locationUrl}
-                progressMsg={progressMsg}
-              />
-            }
-          />
-        </Routes>
-
-        {/* System Dock */}
-        <div className="h-10 border-t border-white/[0.04] flex items-center justify-between px-6 bg-black/30 backdrop-blur-xl relative z-10">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2 text-[9px] font-bold text-white/20 uppercase tracking-widest">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 status-dot" />
-              Sunucu: <span className="text-emerald-400/60 ml-1">Optimal</span>
-            </div>
-            <div className="h-3 w-[1px] bg-white/[0.06]" />
-            <div className="flex items-center gap-2 text-[9px] font-bold text-white/20 uppercase tracking-widest">
-              Mod: <span className="ml-1" style={{ color: isLocationMode ? "#59c5a0aa" : "#c5a059aa" }}>
-                {getCurrentViewMode().toUpperCase()}
-              </span>
-            </div>
-            <div className="h-3 w-[1px] bg-white/[0.06]" />
-            <div className="flex items-center gap-2 text-[9px] font-bold text-white/20 uppercase tracking-widest">
-              Düğüm: <span className="text-[#c5a059]/70 ml-1">{engine.split('/').pop()?.toUpperCase()}</span>
+          {/* Footer */}
+          <div className="pt-4 border-t border-white/5">
+            <div className="flex items-center justify-between text-[9px] text-gray-500">
+              <span>Hız: 2.4s/it</span>
+              <span>Sürüm: v4.2.0</span>
             </div>
           </div>
-          <div className="text-[9px] font-mono text-white/8 uppercase font-bold tracking-wider">
-            FM_{new Date().toISOString().slice(0,10).replace(/-/g,'')}
-          </div>
-        </div>
+        </aside>
+
+        {/* ─── CENTER WORKSPACE ─── */}
+        <section className="flex-1 bg-black/20 overflow-y-auto relative">
+          <Routes>
+            <Route
+              path="*"
+              element={
+                <ViewPage
+                  title={viewMode === "front" ? "Ön Görünüm" : viewMode === "back" ? "Arka Görünüm" : viewMode === "closeup" ? "Yakın Plan" : viewMode === "location" ? "Mekan Çekim" : "Dış Yakın Plan"}
+                  subtitle={isLocationMode ? "Dış Mekan Editoryal Modu Aktif" : "Editoryal Ön Çekim Modu Aktif"}
+                  viewMode={viewMode}
+                  isLoading={isLoading}
+                  onGenerate={handleGenerate}
+                  canGenerate={!!dressUrl && !!modelUrl}
+                  progressMsg={progressMsg}
+                  dressUrl={dressUrl}
+                  setDressUrl={setDressUrl}
+                  modelUrl={modelUrl}
+                  setModelUrl={setModelUrl}
+                  locationUrl={locationUrl}
+                  setLocationUrl={setLocationUrl}
+                  isLocationMode={isLocationMode}
+                />
+              }
+            />
+          </Routes>
+        </section>
+
+        {/* ─── RIGHT SIDEBAR (Archive) ─── */}
+        <aside className="w-80 border-l border-white/5 bg-black/40 p-4 flex flex-col overflow-hidden shrink-0">
+          <ResultGallery results={results} isLoading={isLoading} />
+        </aside>
       </main>
 
-      {/* ─── Results History Panel ─── */}
-      <aside className="gallery-panel p-5 overflow-hidden">
-        <ResultGallery results={results} isLoading={isLoading} />
-      </aside>
+      {/* ═══ BOTTOM STATUS ═══ */}
+      <footer className="h-8 bg-black border-t border-white/5 flex items-center px-4 justify-between z-50 shrink-0">
+        <div className="flex items-center gap-4">
+          <span className="text-[10px] text-gray-500 flex items-center">
+            <span className="w-2 h-2 bg-green-500 rounded-full mr-2" />
+            Sistem Erişimi
+          </span>
+          <span className="text-[10px] text-gray-700">|</span>
+          <span className="text-[10px] text-gray-500">Çekim Modu: {shootMode.toUpperCase()}</span>
+          <span className="text-[10px] text-gray-700">|</span>
+          <span className="text-[10px] text-gray-500">Düğüm: {engine.split("/").pop()?.toUpperCase()}</span>
+        </div>
+        <div className="flex items-center gap-6 text-[10px] text-gray-500">
+          <span>Latans: 42ms</span>
+          <span>Oturum ID: FM_07840</span>
+        </div>
+      </footer>
 
-      {/* ─── Enhanced Settings Modal ─── */}
+      {/* ═══ SETTINGS MODAL ═══ */}
       <AnimatePresence>
         {showSettings && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black/90 z-[1000] flex items-center justify-center p-12 backdrop-blur-2xl"
+            className="fixed inset-0 bg-black/90 z-[1000] flex items-center justify-center p-6 backdrop-blur-xl"
           >
             <motion.div
-              initial={{ y: 40, scale: 0.96, opacity: 0 }}
-              animate={{ y: 0, scale: 1, opacity: 1 }}
-              exit={{ y: 20, scale: 0.98, opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="max-w-lg w-full card-glass p-10 relative overflow-hidden"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="max-w-md w-full glass-panel rounded-lg p-8"
             >
-              {/* Top accent line */}
-              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#c5a059] to-transparent opacity-40" />
-
-              {/* Subtle corner glow */}
-              <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#c5a059]/5 rounded-full blur-[60px] pointer-events-none" />
-
-              <div className="flex justify-between items-start mb-10">
-                <div className="space-y-2">
-                  <h2 className="font-display text-3xl font-bold tracking-tight">
-                    Sistem <span className="text-[#c5a059]">Merkezi</span>
-                  </h2>
-                  <p className="text-[10px] text-white/25 uppercase tracking-[0.2em] font-bold">Editoryal Erişim Protokolü</p>
-                </div>
-                <motion.button
-                  whileHover={{ scale: 1.05, rotate: 90 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setShowSettings(false)}
-                  className="w-10 h-10 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/20 hover:text-white flex items-center justify-center transition-all"
-                >
-                  <X size={20} strokeWidth={1.5} />
-                </motion.button>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-lg font-semibold tracking-tight">Sistem Ayarları</h2>
+                <button onClick={() => setShowSettings(false)} className="text-gray-500 hover:text-white transition-colors">
+                  <X size={20} />
+                </button>
               </div>
-
-              <div className="space-y-8">
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-[#c5a059] uppercase tracking-[0.3em] block pl-1">Fal.ai API Kimlik Bilgileri</label>
-                  <div className="relative">
-                    <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-white/10" size={15} />
-                    <input
-                      type="password"
-                      value={falKey}
-                      onChange={(e) => setFalKey(e.target.value)}
-                      placeholder="API ANAHTARINIZI BURAYA YAPIŞTIRIN"
-                      className="input-modern pl-12 pr-12 focus:border-[#c5a059]/50"
-                    />
-                  </div>
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label className="text-[10px] font-semibold text-[#D4AF37] uppercase tracking-widest mb-2 block">Fal.ai API Key</label>
+                  <input
+                    type="password"
+                    value={falKey}
+                    onChange={(e) => setFalKey(e.target.value)}
+                    placeholder="API Key"
+                    className="input-field"
+                  />
                 </div>
-
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
+                <button
                   onClick={() => setShowSettings(false)}
-                  className="w-full btn-primary"
+                  className="w-full bg-[#D4AF37] hover:bg-[#A67C00] text-black py-3 rounded-sm font-semibold transition-colors"
                 >
-                  Yetkilendir ve Senkronize Et
-                </motion.button>
-
-                <div className="flex items-start gap-4 p-5 rounded-xl bg-white/[0.015] border border-white/[0.04]">
-                  <div className="p-2 bg-[#c5a059]/8 rounded-lg flex-shrink-0">
-                    <Shield size={13} className="text-[#c5a059]/60" />
-                  </div>
-                  <p className="text-[10px] text-white/25 leading-relaxed font-medium">
-                    Kimlik bilgileriniz yerel tarayıcı önbelleğinizde saklanır ve asla sunucularımıza gönderilmez. Yüksek moda güvenlik kuralları uygulanmaktadır.
-                  </p>
-                </div>
+                  Kaydet ve Kapat
+                </button>
               </div>
             </motion.div>
           </motion.div>

@@ -1,52 +1,16 @@
 import React from "react";
-import { Eye, RotateCcw, Focus, Camera, MapPin } from "lucide-react";
+import { Eye, RotateCcw, Focus, MapPin } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 
 type ShootMode = "studio" | "location";
-
-interface ViewTab {
-  key: string;
-  path: string;
-  label: string;
-  sublabel: string;
-  icon: React.ReactNode;
-  color: string;
-}
-
-const studioTabs: ViewTab[] = [
-  {
-    key: "front",
-    path: "/",
-    label: "Ön Görünüm",
-    sublabel: "Editoryal Çekim",
-    icon: <Eye size={16} strokeWidth={1.8} />,
-    color: "#c5a059",
-  },
-  {
-    key: "back",
-    path: "/back",
-    label: "Arka Görünüm",
-    sublabel: "Arka Çekim",
-    icon: <RotateCcw size={16} strokeWidth={1.8} />,
-    color: "#59a0c5",
-  },
-  {
-    key: "closeup",
-    path: "/closeup",
-    label: "Yakın Plan",
-    sublabel: "Detay Çekim",
-    icon: <Focus size={16} strokeWidth={1.8} />,
-    color: "#a059c5",
-  },
-];
 
 interface Props {
   shootMode: ShootMode;
   onShootModeChange: (mode: ShootMode) => void;
+  mode?: "shoot" | "view";
 }
 
-export const ViewModeNav: React.FC<Props> = ({ shootMode, onShootModeChange }) => {
+export const ViewModeNav: React.FC<Props> = ({ shootMode, onShootModeChange, mode = "view" }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -60,9 +24,9 @@ export const ViewModeNav: React.FC<Props> = ({ shootMode, onShootModeChange }) =
 
   const activeKey = getActiveKey();
 
-  const handleShootModeChange = (mode: ShootMode) => {
-    onShootModeChange(mode);
-    if (mode === "location") {
+  const handleShootModeChange = (m: ShootMode) => {
+    onShootModeChange(m);
+    if (m === "location") {
       navigate("/location");
     } else {
       if (location.pathname === "/location" || location.pathname === "/location-closeup") {
@@ -71,298 +35,67 @@ export const ViewModeNav: React.FC<Props> = ({ shootMode, onShootModeChange }) =
     }
   };
 
-  return (
-    <div className="flex flex-col gap-4">
-      {/* ─── Stüdyo / Mekan Toggle ─── */}
+  /* ─── SHOOT MODE TOGGLE ─── */
+  if (mode === "shoot") {
+    return (
       <div className="grid grid-cols-2 gap-2">
-        {/* Stüdyo Button */}
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
+        <button
           onClick={() => handleShootModeChange("studio")}
-          className={`relative flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-all duration-400 overflow-hidden border
-            ${shootMode === "studio"
-              ? "bg-[#c5a059]/[0.06] border-[#c5a059]/25"
-              : "bg-white/[0.01] border-white/[0.05] hover:bg-white/[0.03] hover:border-white/[0.08]"
-            }`}
+          className={`p-3 glass-panel rounded-sm text-center transition-all ${shootMode === "studio" ? "active-gold" : "text-gray-500 hover:text-gray-300"}`}
         >
-          {/* Active glow */}
-          {shootMode === "studio" && (
-            <motion.div
-              layoutId="shoot-mode-glow"
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: "radial-gradient(circle at 50% 30%, rgba(197, 160, 89, 0.08) 0%, transparent 70%)",
-              }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            />
-          )}
-
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-400
-            ${shootMode === "studio"
-              ? "bg-gradient-to-br from-[#c5a059] to-[#b8860b] text-black shadow-lg shadow-[#c5a059]/20"
-              : "bg-white/[0.04] text-white/20"
-            }`}
-          >
-            <Camera size={15} strokeWidth={1.8} />
-          </div>
-
-          <div className="text-center relative z-10">
-            <p className={`text-[10px] font-bold tracking-wider transition-colors duration-300
-              ${shootMode === "studio" ? "text-white" : "text-white/25"}`}>
-              Stüdyo
-            </p>
-            <p className={`text-[6px] font-bold uppercase tracking-[0.2em] mt-0.5 transition-colors duration-300
-              ${shootMode === "studio" ? "text-[#c5a059]/60" : "text-white/10"}`}>
-              İç Mekan
-            </p>
-          </div>
-
-          {/* Bottom accent */}
-          {shootMode === "studio" && (
-            <motion.div
-              layoutId="shoot-mode-bar"
-              className="absolute bottom-0 left-4 right-4 h-[2px] rounded-full bg-[#c5a059]/50"
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            />
-          )}
-        </motion.button>
-
-        {/* Mekan Button */}
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
+          <svg className={`w-5 h-5 mx-auto mb-2 ${shootMode === "studio" ? "text-[#D4AF37]" : "opacity-50"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" strokeWidth="1.5" />
+          </svg>
+          <span className="text-[10px]">Stüdyo</span>
+        </button>
+        <button
           onClick={() => handleShootModeChange("location")}
-          className={`relative flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-all duration-400 overflow-hidden border
-            ${shootMode === "location"
-              ? "bg-[#59c5a0]/[0.06] border-[#59c5a0]/25"
-              : "bg-white/[0.01] border-white/[0.05] hover:bg-white/[0.03] hover:border-white/[0.08]"
-            }`}
+          className={`p-3 glass-panel rounded-sm text-center transition-all ${shootMode === "location" ? "active-gold" : "text-gray-500 hover:text-gray-300"}`}
         >
-          {/* Active glow */}
-          {shootMode === "location" && (
-            <motion.div
-              layoutId="shoot-mode-glow"
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: "radial-gradient(circle at 50% 30%, rgba(89, 197, 160, 0.08) 0%, transparent 70%)",
-              }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            />
-          )}
-
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-400
-            ${shootMode === "location"
-              ? "bg-gradient-to-br from-[#59c5a0] to-[#3a9e7a] text-black shadow-lg shadow-[#59c5a0]/20"
-              : "bg-white/[0.04] text-white/20"
-            }`}
-          >
-            <MapPin size={15} strokeWidth={1.8} />
-          </div>
-
-          <div className="text-center relative z-10">
-            <p className={`text-[10px] font-bold tracking-wider transition-colors duration-300
-              ${shootMode === "location" ? "text-white" : "text-white/25"}`}>
-              Mekan
-            </p>
-            <p className={`text-[6px] font-bold uppercase tracking-[0.2em] mt-0.5 transition-colors duration-300
-              ${shootMode === "location" ? "text-[#59c5a0]/60" : "text-white/10"}`}>
-              Dış Mekan
-            </p>
-          </div>
-
-          {/* Bottom accent */}
-          {shootMode === "location" && (
-            <motion.div
-              layoutId="shoot-mode-bar"
-              className="absolute bottom-0 left-4 right-4 h-[2px] rounded-full bg-[#59c5a0]/50"
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            />
-          )}
-        </motion.button>
+          <svg className={`w-5 h-5 mx-auto mb-2 ${shootMode === "location" ? "text-[#D4AF37]" : "opacity-50"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" strokeWidth="1.5" />
+            <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" strokeWidth="1.5" />
+          </svg>
+          <span className="text-[10px]">Mekan</span>
+        </button>
       </div>
+    );
+  }
 
-      {/* ─── Studio Sub-Tabs ─── */}
-      <AnimatePresence mode="wait">
-        {shootMode === "studio" && (
-          <motion.div
-            key="studio-tabs"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25 }}
-            className="flex flex-col gap-1.5"
+  /* ─── VIEW TABS ─── */
+  const studioTabs = [
+    { key: "front", path: "/", label: "Ön Görünüm", sublabel: "Editoryal Çekim", icon: <Eye size={16} /> },
+    { key: "back", path: "/back", label: "Arka Görünüm", sublabel: "Detaylı Çekim", icon: <RotateCcw size={16} /> },
+    { key: "closeup", path: "/closeup", label: "Yakın Plan", sublabel: "Detay Odağı", icon: <Focus size={16} /> },
+  ];
+
+  const locationTabs = [
+    { key: "location", path: "/location", label: "Mekan Çekim", sublabel: "Dış Mekan Editoryal", icon: <MapPin size={16} /> },
+    { key: "location-closeup", path: "/location-closeup", label: "Yakın Plan", sublabel: "Dış Mekan Arka Plan", icon: <Focus size={16} /> },
+  ];
+
+  const tabs = shootMode === "studio" ? studioTabs : locationTabs;
+
+  return (
+    <div className="flex flex-col gap-2">
+      {tabs.map((tab) => {
+        const isActive = activeKey === tab.key;
+        return (
+          <button
+            key={tab.key}
+            onClick={() => navigate(tab.path)}
+            className={`flex items-center gap-3 p-2 glass-panel rounded-sm transition-all ${isActive ? "active-gold" : "text-gray-400 hover:bg-white/5"}`}
           >
-            {studioTabs.map((tab) => {
-              const isActive = activeKey === tab.key;
-              return (
-                <motion.button
-                  key={tab.key}
-                  whileHover={{ x: 3 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => navigate(tab.path)}
-                  className={`relative flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all duration-300 overflow-hidden
-                    ${isActive
-                      ? "bg-white/[0.04] border border-white/[0.08]"
-                      : "bg-transparent border border-transparent hover:bg-white/[0.02] hover:border-white/[0.04]"
-                    }`}
-                >
-                  {/* Active indicator bar */}
-                  {isActive && (
-                    <motion.div
-                      layoutId="view-nav-active"
-                      className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full"
-                      style={{ background: tab.color }}
-                      transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                    />
-                  )}
-
-                  {/* Icon */}
-                  <div
-                    className={`w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-300
-                      ${isActive ? "text-black" : "bg-white/[0.03] text-white/20"}`}
-                    style={
-                      isActive
-                        ? {
-                            background: `linear-gradient(135deg, ${tab.color}, ${tab.color}cc)`,
-                            boxShadow: `0 4px 12px ${tab.color}30`,
-                          }
-                        : {}
-                    }
-                  >
-                    {tab.icon}
-                  </div>
-
-                  {/* Text */}
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className={`text-[10px] font-bold tracking-wider transition-colors duration-300
-                        ${isActive ? "text-white" : "text-white/30"}`}
-                    >
-                      {tab.label}
-                    </p>
-                    <p
-                      className={`text-[8px] font-bold uppercase tracking-[0.2em] transition-colors duration-300
-                        ${isActive ? "" : "text-white/10"}`}
-                      style={isActive ? { color: `${tab.color}99` } : {}}
-                    >
-                      {tab.sublabel}
-                    </p>
-                  </div>
-
-                  {/* Active dot */}
-                  {isActive && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                      style={{ background: tab.color }}
-                    />
-                  )}
-                </motion.button>
-              );
-            })}
-          </motion.div>
-        )}
-
-        {/* ─── Location Sub-Tabs ─── */}
-        {shootMode === "location" && (
-          <motion.div
-            key="location-tabs"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25 }}
-            className="flex flex-col gap-1.5"
-          >
-            {/* Mekan Çekim */}
-            <motion.button
-              whileHover={{ x: 3 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate("/location")}
-              className={`relative flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all duration-300 overflow-hidden
-                ${activeKey === "location"
-                  ? "bg-white/[0.04] border border-white/[0.08]"
-                  : "bg-transparent border border-transparent hover:bg-white/[0.02] hover:border-white/[0.04]"
-                }`}
-            >
-              {activeKey === "location" && (
-                <motion.div
-                  layoutId="view-nav-active"
-                  className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-[#59c5a0]"
-                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                />
-              )}
-              <div
-                className={`w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-300
-                  ${activeKey === "location" ? "text-black" : "bg-white/[0.03] text-white/20"}`}
-                style={activeKey === "location" ? {
-                  background: "linear-gradient(135deg, #59c5a0, #59c5a0cc)",
-                  boxShadow: "0 4px 12px rgba(89, 197, 160, 0.3)",
-                } : {}}
-              >
-                <MapPin size={16} strokeWidth={1.8} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className={`text-[10px] font-bold tracking-wider transition-colors duration-300
-                  ${activeKey === "location" ? "text-white" : "text-white/30"}`}>
-                  Mekan Çekim
-                </p>
-                <p className={`text-[8px] font-bold uppercase tracking-[0.2em] transition-colors duration-300
-                  ${activeKey === "location" ? "text-[#59c5a0]/60" : "text-white/10"}`}>
-                  Dış Mekan Editoryal
-                </p>
-              </div>
-              {activeKey === "location" && (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-1.5 h-1.5 rounded-full bg-[#59c5a0] flex-shrink-0" />
-              )}
-            </motion.button>
-
-            {/* Yakın Plan (Outdoor Background) */}
-            <motion.button
-              whileHover={{ x: 3 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate("/location-closeup")}
-              className={`relative flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all duration-300 overflow-hidden
-                ${activeKey === "location-closeup"
-                  ? "bg-white/[0.04] border border-white/[0.08]"
-                  : "bg-transparent border border-transparent hover:bg-white/[0.02] hover:border-white/[0.04]"
-                }`}
-            >
-              {activeKey === "location-closeup" && (
-                <motion.div
-                  layoutId="view-nav-active"
-                  className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full bg-[#a0c559]"
-                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                />
-              )}
-              <div
-                className={`w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-300
-                  ${activeKey === "location-closeup" ? "text-black" : "bg-white/[0.03] text-white/20"}`}
-                style={activeKey === "location-closeup" ? {
-                  background: "linear-gradient(135deg, #a0c559, #a0c559cc)",
-                  boxShadow: "0 4px 12px rgba(160, 197, 89, 0.3)",
-                } : {}}
-              >
-                <Focus size={16} strokeWidth={1.8} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className={`text-[10px] font-bold tracking-wider transition-colors duration-300
-                  ${activeKey === "location-closeup" ? "text-white" : "text-white/30"}`}>
-                  Yakın Plan
-                </p>
-                <p className={`text-[8px] font-bold uppercase tracking-[0.2em] transition-colors duration-300
-                  ${activeKey === "location-closeup" ? "text-[#a0c559]/60" : "text-white/10"}`}>
-                  Dış Mekan Arka Plan
-                </p>
-              </div>
-              {activeKey === "location-closeup" && (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-1.5 h-1.5 rounded-full bg-[#a0c559] flex-shrink-0" />
-              )}
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <span className={`w-8 h-8 flex items-center justify-center rounded ${isActive ? "bg-[#D4AF37]/10 text-[#D4AF37]" : "border border-white/5 text-gray-500"}`}>
+              {tab.icon}
+            </span>
+            <div className="text-left">
+              <p className={`text-[11px] font-medium ${isActive ? "text-white" : ""}`}>{tab.label}</p>
+              <p className="text-[9px] text-gray-500">{tab.sublabel}</p>
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 };
