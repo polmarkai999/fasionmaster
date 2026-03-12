@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build"
+    "build": "tsc && vite build",
+    "deploy": "npm run build && wrangler deploy",
+    "preview": "npm run build && wrangler dev"
   },
   "dependencies": {
     "@fal-ai/client": "^1.9.4",
@@ -19,6 +21,7 @@
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.27.0",
     "@tailwindcss/vite": "^4.2.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -26,6 +29,7 @@
     "tailwindcss": "^4.2.1",
     "typescript": "^4.1.2",
     "vite": "^7.3.1",
-    "vite-plugin-react": "^4.0.0"
+    "vite-plugin-react": "^4.0.0",
+    "wrangler": "^4.72.0"
   }
 }
