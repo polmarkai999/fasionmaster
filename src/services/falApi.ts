@@ -32,18 +32,19 @@ const getPromptForView = (viewMode: ViewMode): string => {
 };
 
 const getDescriptionForView = (viewMode: ViewMode): string => {
+  const masterRule = "The gown design, silhouette, lace embroidery, corset structure, and satin overskirt must remain identical to the reference dress. ";
   switch (viewMode) {
     case "back":
-      return "Elegant professional bridal couture transfer onto model — STRICT BACK VIEW. Model facing away from camera. Centered symmetrical back composition. Show back of dress, corset back, train. Face must NOT be visible.";
+      return masterRule + "Elegant professional bridal couture transfer onto model — STRICT BACK VIEW. Model facing away from camera. Centered symmetrical back composition. Show back of dress, corset back, train. Face must NOT be visible.";
     case "closeup":
-      return "Elegant professional bridal couture transfer — EXTREME CLOSE-UP DETAIL. Macro photography of dress fabric, lace patterns, beadwork, embroidery. Tight crop on bodice/torso. 50mm macro lens style.";
+      return masterRule + "Elegant professional bridal couture transfer — EXTREME CLOSE-UP DETAIL. Macro photography of dress fabric, lace patterns, beadwork, embroidery. Tight crop on bodice/torso. 50mm macro lens style.";
     case "location":
-      return "Elegant professional bridal couture transfer onto model — ON-LOCATION SHOOT. Place the dressed model naturally into the venue/location environment. Match lighting, perspective, and atmosphere of the location.";
+      return masterRule + "Elegant professional bridal couture transfer onto model — ON-LOCATION SHOOT. Place the dressed model naturally into the venue/location environment. Match lighting, perspective, and atmosphere of the location.";
     case "location-closeup":
-      return "Create an outdoor luxury fashion photography background for waist-up bridal portrait. No people. Historic European castle with botanical garden. Cinematic depth of field.";
+      return masterRule + "Create an outdoor luxury fashion photography background for waist-up bridal portrait. No people. Historic European castle with botanical garden. Cinematic depth of field.";
     case "front":
     default:
-      return "Elegant professional bridal couture transfer onto model";
+      return masterRule + "Elegant professional bridal couture transfer onto model";
   }
 };
 

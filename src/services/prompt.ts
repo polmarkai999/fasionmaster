@@ -2,6 +2,8 @@
 // FRONT VIEW PROMPT — Original Editorial Front Shot
 // ================================================
 export const FRONT_VIEW_PROMPT = `
+The gown design, silhouette, lace embroidery, corset structure, and satin overskirt must remain identical to the reference dress.
+
 [START TECHNICAL PROMPT BLOCK]
 ------------------------------------------------
 NANO BANANA PRO – ULTRA BRIDAL GARMENT LOCK PROMPT
@@ -256,6 +258,8 @@ export const BRIDAL_GARMENT_LOCK_PROMPT = FRONT_VIEW_PROMPT;
 // BACK VIEW PROMPT — Locked Back Camera Angle
 // ================================================
 export const BACK_VIEW_PROMPT = `
+The gown design, silhouette, lace embroidery, corset structure, and satin overskirt must remain identical to the reference dress.
+
 [START TECHNICAL PROMPT BLOCK]
 ------------------------------------------------
 NANO BANANA PRO – ULTRA BRIDAL GARMENT LOCK PROMPT
@@ -535,6 +539,8 @@ No anatomy errors
 // CLOSE-UP VIEW PROMPT — Waist-Up Couture Portrait
 // ================================================
 export const CLOSEUP_VIEW_PROMPT = `
+The gown design, silhouette, lace embroidery, corset structure, and satin overskirt must remain identical to the reference dress.
+
 [START TECHNICAL PROMPT BLOCK]
 ------------------------------------------------
 NANO BANANA PRO – ULTRA BRIDAL GARMENT LOCK PROMPT (WAIST-UP)
@@ -796,6 +802,8 @@ Editorial bridal fashion photography inspired by modern Vogue bridal campaigns. 
 // LOCATION VIEW PROMPT — On-Location Fashion Shoot
 // ================================================
 export const LOCATION_VIEW_PROMPT = `
+The gown design, silhouette, lace embroidery, corset structure, and satin overskirt must remain identical to the reference dress.
+
 [START TECHNICAL PROMPT BLOCK]
 ------------------------------------------------
 NANO BANANA PRO – ULTRA BRIDAL GARMENT LOCK PROMPT
@@ -1050,6 +1058,8 @@ No mismatched perspective
 // OUTDOOR BACKGROUND PROMPT — Location Background Generator
 // ================================================
 export const OUTDOOR_BACKGROUND_PROMPT = `
+The gown design, silhouette, lace embroidery, corset structure, and satin overskirt must remain identical to the reference dress.
+
 [START TECHNICAL PROMPT BLOCK]
 ------------------------------------------------
 NANO BANANA PRO – OUTDOOR BRIDAL PORTRAIT BACKGROUND
